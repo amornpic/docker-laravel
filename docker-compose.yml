@@ -1,0 +1,54 @@
+version: "3.7"
+services:
+  app:
+    image: songponlekpetch/php-node-composer:release-1.0.3
+    container_name: pp-app-v3
+    working_dir: /var/www/
+    restart: unless-stopped
+    ports:
+      - "9000:9000"
+    volumes:
+      - ./src:/var/www
+    networks:
+      - pp-app-v3
+
+  db:
+    image: mysql:5.7
+    container_name: pp-app-v3-db
+    restart: unless-stopped
+    ports:
+      - "3306:3306"
+    environment:
+      MYSQL_DATABASE: ${DB_DATABASE}
+      MYSQL_ROOT_PASSWORD: ${DB_PASSWORD}
+      MYSQL_PASSWORD: ${DB_PASSWORD}
+      MYSQL_USER: ${DB_USERNAME}
+    volumes:
+      - ./.docker/db_data:/var/lib/mysql
+    networks:
+      - pp-app-v3
+
+  nginx:
+    image: nginx:alpine
+    container_name: pp-app-v3-nginx
+    restart: unless-stopped
+    ports:
+      - "80:80"
+    volumes:
+      - ./public:/var/www/public
+      - ./.docker/nginx:/etc/nginx/conf.d
+    networks:
+      - pp-app-v3
+
+  redis:
+    image: redis
+    container_name: pp-app-v3-redis
+    restart: unless-stopped
+    ports:
+      - "6379:6379"
+    networks:
+      - pp-app-v3
+
+networks:
+  pp-app-v3:
+    driver: bridge
