@@ -1,7 +1,9 @@
 version: "3.7"
 services:
   app:
-    image: songponlekpetch/php-node-composer:release-1.0.3
+    build:
+      context: .
+      dockerfile: app.dockerfile
     container_name: pp-app-v3
     working_dir: /var/www/
     restart: unless-stopped
