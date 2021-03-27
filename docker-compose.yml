@@ -4,7 +4,7 @@ services:
     build:
       context: .
       dockerfile: app.dockerfile
-    container_name: pp-app-v3
+    container_name: ${CONTAINER_NAME}
     working_dir: /var/www/
     restart: unless-stopped
     ports:
@@ -12,14 +12,14 @@ services:
     volumes:
       - ./src:/var/www
     networks:
-      - pp-app-v3
+      - pp-platform
 
   db:
     image: mysql:5.7
-    container_name: pp-app-v3-db
+    container_name: ${CONTAINER_NAME}-db
     restart: unless-stopped
     ports:
-      - "3306:3306"
+      - "33060:3306"
     environment:
       MYSQL_DATABASE: ${DB_DATABASE}
       MYSQL_ROOT_PASSWORD: ${DB_PASSWORD}
@@ -28,29 +28,40 @@ services:
     volumes:
       - ./.docker/db_data:/var/lib/mysql
     networks:
-      - pp-app-v3
+      - pp-platform
 
   nginx:
     image: nginx:alpine
-    container_name: pp-app-v3-nginx
+    container_name: ${CONTAINER_NAME}-nginx
     restart: unless-stopped
     ports:
-      - "80:80"
+      - "8080:80"
     volumes:
       - ./src/public:/var/www/public
       - ./.docker/nginx:/etc/nginx/conf.d
     networks:
-      - pp-app-v3
+      - pp-platform
 
   redis:
     image: redis
-    container_name: pp-app-v3-redis
+    container_name: ${CONTAINER_NAME}-redis
     restart: unless-stopped
     ports:
-      - "6379:6379"
+      - "63790:6379"
     networks:
-      - pp-app-v3
+      - pp-platform
+
+  # mailhog:
+  #   image: mailhog/mailhog
+  #   container_name: ${CONTAINER_NAME}-mailhog
+  #   restart: unless-stopped
+  #   ports:
+  #     - "10250:1025"
+  #     - "2025:8025"
+  #   networks:
+  #     - pp-platform
 
 networks:
-  pp-app-v3:
-    driver: bridge
+  pp-platform:
+    external:
+      name: pp-platform
